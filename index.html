@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frånvarokalender</title>
+<script>
+  // Sätt tema innan sidan ritas, så att den inte blinkar ljust. Mörkt är standard.
+  try { document.documentElement.dataset.theme = localStorage.getItem('franvaro.tema') || 'dark'; }
+  catch (e) { document.documentElement.dataset.theme = 'dark'; }
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>Frånvarokalender</h1>
+  <div class="nav">
+    <button id="prev" title="Föregående månad" aria-label="Föregående månad">‹</button>
+    <button id="today">Idag</button>
+    <button id="next" title="Nästa månad" aria-label="Nästa månad">›</button>
+    <span id="rangeLabel" class="range-label"></span>
+    <select id="monthsSel" title="Antal månader som visas">
+      <option value="1">1 månad</option>
+      <option value="2">2 månader</option>
+      <option value="3">3 månader</option>
+      <option value="6">6 månader</option>
+      <option value="9">9 månader</option>
+      <option value="12">12 månader</option>
+      <option value="18">18 månader</option>
+      <option value="24">24 månader</option>
+    </select>
+  </div>
+  <div class="actions">
+    <button id="btnEmployees">Anställda</button>
+    <button id="btnCodes">Frånvarokoder</button>
+    <button id="btnHolidays">Röda dagar</button>
+    <button id="btnTheme" title="Byt mellan mörkt och ljust tema"></button>
+    <span id="status" class="status">Ansluter…</span>
+  </div>
+</header>
+
+<div id="palette" class="palette"></div>
+
+<main id="gridWrap" class="grid-wrap" tabindex="0">
+  <table id="grid" class="grid"></table>
+</main>
+
+<div id="connect" class="overlay" hidden>
+  <div class="card">
+    <h2>Anslut till kalendern</h2>
+    <p id="connectMsg"></p>
+    <div class="row">
+      <button id="connectBtn" class="primary">Välj mapp</button>
+      <button id="pickOther" hidden>Välj annan mapp</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="dlgEmployees">
+  <form method="dialog" class="dlg-head">
+    <h2>Anställda</h2>
+    <button aria-label="Stäng">✕</button>
+  </form>
+  <ul id="empList" class="edit-list"></ul>
+  <form id="empAdd" class="add-row">
+    <input name="name" placeholder="Namn på ny anställd" required autocomplete="off">
+    <select name="group" title="Under vilken avskiljare"></select>
+    <button type="submit" class="primary">Lägg till</button>
+  </form>
+  <form id="groupAdd" class="add-row">
+    <input name="name" placeholder="Namn på ny avskiljare, t.ex. Lager" required autocomplete="off">
+    <button type="submit">Lägg till avskiljare</button>
+  </form>
+</dialog>
+
+<dialog id="dlgHolidays">
+  <form method="dialog" class="dlg-head">
+    <h2>Röda dagar</h2>
+    <button aria-label="Stäng">✕</button>
+  </form>
+  <p class="dlg-note">Röda dagar går inte att fylla i kalendern. Svenska helgdagar läggs in från början, men alla dagar
+    kan döpas om, tas bort eller läggas till fritt.</p>
+  <label class="dlg-note check"><input type="checkbox" id="holShowPast"> Visa passerade dagar</label>
+  <ul id="holList" class="edit-list"></ul>
+  <form id="holAdd" class="add-row">
+    <input name="date" type="date" required>
+    <input name="name" placeholder="Namn, t.ex. Klämdag" required autocomplete="off">
+    <button type="submit" class="primary">Lägg till</button>
+  </form>
+  <div class="add-row">
+    <button type="button" id="holRestore">Lägg tillbaka borttagna svenska helgdagar…</button>
+  </div>
+</dialog>
+
+<dialog id="dlgDelete" class="narrow">
+  <form id="delForm">
+    <div class="dlg-head"><h2>Ta bort anställd</h2></div>
+    <div class="dlg-body">
+      <p>Detta tar bort <b id="delName"></b> och all registrerad frånvaro för personen. Det går inte att ångra.</p>
+      <label for="delInput">Skriv namnet exakt som ovan för att bekräfta:</label>
+      <input id="delInput" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="dlg-foot">
+      <button type="button" id="delCancel">Avbryt</button>
+      <button type="submit" id="delOk" class="danger-solid" disabled>Bekräfta ta bort</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgCodes">
+  <form method="dialog" class="dlg-head">
+    <h2>Frånvarokoder</h2>
+    <button aria-label="Stäng">✕</button>
+  </form>
+  <ul id="codeList" class="edit-list"></ul>
+  <form id="codeAdd" class="add-row">
+    <input name="code" class="code" placeholder="Kod" maxlength="3" required autocomplete="off">
+    <input name="label" placeholder="Beskrivning, t.ex. Sjuk" required autocomplete="off">
+    <input name="color" type="color" value="#a0c4ff" title="Färg">
+    <button type="submit" class="primary">Lägg till</button>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>
