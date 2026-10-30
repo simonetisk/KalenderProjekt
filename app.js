@@ -388,9 +388,14 @@ async function check() {
 
 function setStatus(kind, text, err) {
   const el = $('status');
+  // Senaste felet ligger kvar (även medan den försöker igen) tills något lyckas.
+  if (kind === 'error') state.lastError = err;
+  else if (kind === 'ok') state.lastError = null;
+  const e = state.lastError;
   el.className = 'status ' + kind;
-  el.textContent = text || 'Uppdaterad ' + new Date().toLocaleTimeString('sv-SE');
-  el.title = (err ? err.message + '\n' : '') + 'Läge: ' + (state.store ? state.store.label : '–');
+  el.textContent = (text || 'Uppdaterad ' + new Date().toLocaleTimeString('sv-SE')) +
+    (kind === 'error' && e ? ` (${e.name})` : '');
+  el.title = (e ? `${e.name}: ${e.message}\n` : '') + 'Läge: ' + (state.store ? state.store.label : '–');
 }
 
 function purgeEntries(d, keep) {
